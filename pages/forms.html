@@ -473,16 +473,27 @@ html{-webkit-text-size-adjust:100%}
 <div class="no-print">
 <section aria-labelledby="send-title" style="margin: 0 0 56px; padding: 28px; background: #FFFFFF; border: 2px solid #1F3A5F; border-radius: 16px">
 <h2 id="send-title" style="margin: 0 0 6px; font-size: 26px; font-weight: 700">{{ f.name }}, ההסכם נחתם</h2>
-<p style="margin: 0 0 20px; font-size: 16px; color: #3F4A55">ההסכם החתום נשלח אליי אוטומטית דרך האתר, ועותק PDF נשמר גם במכשיר שלך.</p>
-<sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
-<button type="button" onClick="{{ printDoc }}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 36px; border: 0; border-radius: 999px; background: #1F3A5F; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; cursor: pointer"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7Z"></path></svg>שליחת ההסכם החתום</button>
+<p aria-live="polite" style="margin: 0 0 20px; font-size: 18px; font-weight: 700; color: #1F3A5F">{{ pdfStatus }}</p>
+<sc-if value="{{ needRetry }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ printDoc }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; border: 0; background: #1F3A5F; color: #FFFFFF"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7Z"></path></svg>ניסיון נוסף</button>
 </sc-if>
-<p aria-live="polite" style="margin: 12px 0 0; font-size: 15px; font-weight: 700; color: #1F3A5F">{{ pdfStatus }}</p>
-<sc-if value="{{ showFallback }}" hint-placeholder-val="{{ false }}">
-<p style="margin: 20px 0 10px; font-size: 15px; color: #3F4A55">אפשר גם לשלוח ידנית, ולצרף את הקובץ ששמרת:</p>
-<div style="display: flex; flex-wrap: wrap; gap: 12px">
-<a href="{{ waLink }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 32px; border-radius: 999px; background: #25D366; color: #0B2A1A; font-weight: 600; text-decoration: none"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.4A8.5 8.5 0 1 1 21 12Z"></path></svg>שליחה בוואטסאפ</a>
-<a href="{{ mailLink }}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 32px; border-radius: 999px; border: 1px solid #0F1F33; font-weight: 600; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>שליחה במייל</a>
+<sc-if value="{{ needManual }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 420px">
+<sc-if value="{{ canShareFile }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ shareFile }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; border: 0; background: #25D366; color: #0B2A1A"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.4A8.5 8.5 0 1 1 21 12Z"></path></svg>שליחת ההסכם בוואטסאפ</button>
+<p style="margin: -4px 0 4px; font-size: 14px; color: #3F4A55">בחלון שייפתח בחר וואטסאפ, ואז את יוגב דוד.</p>
+</sc-if>
+<sc-if value="{{ noShareFile }}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0 0 4px; font-size: 15px; color: #3F4A55">הורד את ההסכם, ואז צרף אותו להודעה בוואטסאפ או במייל.</p>
+<a href="{{ pdfUrl }}" download="{{ pdfName }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; border: 0; background: #1F3A5F; color: #FFFFFF"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>הורדת ההסכם</a>
+<a href="{{ waLink }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; background: #25D366; color: #0B2A1A"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.4A8.5 8.5 0 1 1 21 12Z"></path></svg>שליחה בוואטסאפ</a>
+<a href="{{ mailLink }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; border: 1px solid #0F1F33"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>שליחה במייל</a>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ pdfReady }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 0">
+<a href="{{ pdfUrl }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 32px; border-radius: 999px; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-decoration: none; cursor: pointer; min-height: 52px; font-size: 16px; border: 1px solid #0F1F33"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"></path><path d="M14 3v5h5"></path></svg>צפייה בהסכם שלך</a>
 </div>
 </sc-if>
 </section>
@@ -683,10 +694,19 @@ class Component extends DCLogic {
     if (self._pdfBusy) return;
     self._pdfBusy = true;
     var fileName = 'Yogev-David-advisory-agreement-' + new Date().toISOString().slice(0, 10) + '.pdf';
-    self.setState({ pdfStatus: 'מכין את ההסכם החתום…', showFallback: false });
+    self.setState({ pdfStatus: 'מכין ושולח את ההסכם החתום…', pdfFailed: false, needManual: false });
     try {
       var blob = await self.makePdf();
-      if (!blob) { self.setState({ pdfStatus: 'לא הצלחתי ליצור את הקובץ. נסה שוב.', showFallback: true }); return; }
+      if (!blob) { self.setState({ pdfStatus: 'לא הצלחתי ליצור את הקובץ. לחץ על ניסיון נוסף.', pdfFailed: true }); return; }
+      try { if (self._pdfUrl) URL.revokeObjectURL(self._pdfUrl); } catch (err) {}
+      self._pdfBlob = blob;
+      self._pdfName = fileName;
+      self._pdfUrl = URL.createObjectURL(blob);
+      var file = null;
+      try { file = new File([blob], fileName, { type: 'application/pdf' }); } catch (err) { file = null; }
+      self._pdfFile = file;
+      var canShare = false;
+      try { canShare = !!(file && navigator.canShare && navigator.canShare({ files: [file] })); } catch (err) { canShare = false; }
       var sent = false;
       try {
         var fd = new FormData();
@@ -700,33 +720,25 @@ class Component extends DCLogic {
         sent = res.ok;
       } catch (err) { sent = false; }
       if (sent) {
-        var copy = await self.saveBlob(blob, fileName);
-        self.setState({ sentOk: true, showFallback: false, pdfStatus: copy === 'saved' ? 'ההסכם החתום נשלח אליי, ועותק נשמר במכשיר שלך. אחזור אליך בהקדם.' : 'ההסכם החתום נשלח אליי. אחזור אליך בהקדם.' });
+        self.setState({ sentOk: true, pdfReady: true, needManual: false, pdfStatus: 'ההסכם החתום נשלח אליי. אחזור אליך בהקדם.' });
         return;
       }
-      var file = null;
-      try { file = new File([blob], fileName, { type: 'application/pdf' }); } catch (err) { file = null; }
-      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'הסכם ייעוץ חתום', text: self._shareText || '' });
-          self.setState({ pdfStatus: 'תודה! ההסכם החתום נשלח.' });
-          return;
-        } catch (err) {
-          if (err && err.name === 'AbortError') { self.setState({ pdfStatus: 'השליחה בוטלה. אפשר ללחוץ שוב.' }); return; }
-        }
-      }
-      var saved = await self.saveBlob(blob, fileName);
-      if (saved === 'declined') { self.setState({ pdfStatus: 'השמירה בוטלה. אפשר ללחוץ שוב.' }); return; }
-      if (saved !== 'saved') { self.setState({ pdfStatus: 'לא הצלחתי לשמור את הקובץ. נסה שוב.', showFallback: true }); return; }
-      var opened = self.openMail(self._mailLink);
-      self.setState({
-        pdfStatus: opened ? 'ההסכם נשמר ונפתחה הודעת מייל אליי. צרף אליה את הקובץ ששמרת ושלח.' : 'ההסכם נשמר. עכשיו שלח לי אותו בכפתורים שלמטה.',
-        showFallback: true
-      });
+      self.setState({ pdfReady: true, needManual: true, canShare: canShare, pdfStatus: 'ההסכם מוכן. נשאר צעד אחד: לשלוח לי אותו.' });
     } catch (err) {
-      self.setState({ pdfStatus: 'משהו השתבש. נסה שוב, או שלח לי בכפתורים שלמטה.', showFallback: true });
+      self.setState({ pdfStatus: 'משהו השתבש. לחץ על ניסיון נוסף.', pdfFailed: true });
     } finally {
       self._pdfBusy = false;
+    }
+  }
+  async shareFile() {
+    var self = this;
+    if (!self._pdfFile) return;
+    try {
+      await navigator.share({ files: [self._pdfFile], title: 'הסכם ייעוץ חתום', text: self._shareText || '' });
+      self.setState({ pdfStatus: 'תודה! אם שלחת לי את הקובץ, קיבלתי אותו. אחזור אליך בהקדם.' });
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      self.setState({ canShare: false });
     }
   }
   sigPoint(c, e) {
@@ -966,8 +978,14 @@ class Component extends DCLogic {
         self.setState({ sig: '' });
       },
       printDoc: function () { self.sendAll(); },
-      showFallback: !!st.showFallback,
-      notSent: !st.sentOk,
+      shareFile: function () { self.shareFile(); },
+      needRetry: !!st.pdfFailed,
+      needManual: !!st.needManual,
+      canShareFile: !!st.canShare,
+      noShareFile: !st.canShare,
+      pdfReady: !!st.pdfReady,
+      pdfUrl: self._pdfUrl || '#',
+      pdfName: self._pdfName || 'agreement.pdf',
       pdfStatus: st.pdfStatus,
       hasPdfStatus: !!st.pdfStatus,
       today: todayStr,
@@ -978,7 +996,7 @@ class Component extends DCLogic {
           var now = new Date();
           var d = '', t = '';
           try { d = now.toLocaleDateString('he-IL'); t = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }); } catch (err) { d = now.toISOString().slice(0, 10); }
-          self.setState({ done: true, tried: false, sentOk: false, signedDate: d, signedAt: d + (t ? ', ' + t : '') });
+          self.setState({ done: true, tried: false, sentOk: false, pdfReady: false, needManual: false, pdfFailed: false, pdfStatus: '', signedDate: d, signedAt: d + (t ? ', ' + t : '') });
           setTimeout(function () { self.sendAll(); }, 500);
           try { window.scrollTo(0, 0); } catch (e) {}
         } else self.setState({ tried: true });
