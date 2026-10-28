@@ -47,6 +47,8 @@ html{-webkit-text-size-adjust:100%}
 
 </div>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="r-age" style="font-size: 15px; font-weight: 700">גיל</label><input id="r-age" type="text" inputmode="numeric" maxlength="3" value="" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="r-marital" style="font-size: 15px; font-weight: 700">מצב משפחתי (לא חובה)</label><select id="r-marital" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"><option value="" selected="">בחר</option><option value="רווק/ה">רווק/ה</option><option value="נשוי/אה">נשוי/אה</option><option value="ידוע/ה בציבור">ידוע/ה בציבור</option><option value="גרוש/ה">גרוש/ה</option><option value="אלמן/ה">אלמן/ה</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="r-kids" style="font-size: 15px; font-weight: 700">מספר ילדים (לא חובה)</label><input id="r-kids" type="text" inputmode="numeric" maxlength="2" value="" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="r-amount" style="font-size: 15px; font-weight: 700">סכום מיועד להשקעה בש״ח (לא חובה)</label><input id="r-amount" type="text" inputmode="numeric" dir="ltr" value="" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
 </div>
 </section>
@@ -334,6 +336,8 @@ html{-webkit-text-size-adjust:100%}
 </sc-if>
 </div>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="r-age" style="font-size: 15px; font-weight: 700">גיל</label><input id="r-age" type="text" inputmode="numeric" maxlength="3" value="{{ f.age }}" onChange="{{ set.age }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="r-marital" style="font-size: 15px; font-weight: 700">מצב משפחתי (לא חובה)</label><select id="r-marital" value="{{ f.marital }}" onChange="{{ set.marital }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"><option value="">בחר</option><option value="רווק/ה">רווק/ה</option><option value="נשוי/אה">נשוי/אה</option><option value="ידוע/ה בציבור">ידוע/ה בציבור</option><option value="גרוש/ה">גרוש/ה</option><option value="אלמן/ה">אלמן/ה</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="r-kids" style="font-size: 15px; font-weight: 700">מספר ילדים (לא חובה)</label><input id="r-kids" type="text" inputmode="numeric" maxlength="2" value="{{ f.kids }}" onChange="{{ set.kids }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
 <div style="display: flex; flex-direction: column; gap: 6px"><label for="r-amount" style="font-size: 15px; font-weight: 700">סכום מיועד להשקעה בש״ח (לא חובה)</label><input id="r-amount" type="text" inputmode="numeric" dir="ltr" value="{{ f.amount }}" onChange="{{ set.amount }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
 </div>
 </section>
@@ -524,6 +528,8 @@ html{-webkit-text-size-adjust:100%}
 <div><dt style="font-size: 13px; color: #3F4A55">טלפון</dt><dd style="margin: 0; font-weight: 700"><span dir="ltr">{{ phoneShown }}</span></dd></div>
 <div><dt style="font-size: 13px; color: #3F4A55">אימייל</dt><dd style="margin: 0; font-weight: 700">{{ f.email }}</dd></div>
 <div><dt style="font-size: 13px; color: #3F4A55">גיל</dt><dd style="margin: 0; font-weight: 700">{{ f.age }}</dd></div>
+<div><dt style="font-size: 13px; color: #3F4A55">מצב משפחתי</dt><dd style="margin: 0; font-weight: 700">{{ f.marital }}</dd></div>
+<div><dt style="font-size: 13px; color: #3F4A55">מספר ילדים</dt><dd style="margin: 0; font-weight: 700">{{ f.kids }}</dd></div>
 <div><dt style="font-size: 13px; color: #3F4A55">סכום מיועד להשקעה</dt><dd style="margin: 0; font-weight: 700"><span dir="ltr">{{ amountShown }}</span></dd></div>
 </dl>
 
@@ -571,7 +577,7 @@ html{-webkit-text-size-adjust:100%}
 </div>
 <div style="flex: 1 1 240px">
 <div style="height: 80px; border-bottom: 1px solid #0F1F33"></div>
-<p style="margin: 6px 0 0; font-size: 14px; color: #3F4A55">חתימת היועץ יוגב דוד · תאריך: __________</p>
+<p style="margin: 6px 0 0; font-size: 14px; color: #3F4A55">חתימת היועץ יוגב דוד, רישיון ייעוץ השקעות מס׳ 11654 · תאריך: __________</p>
 </div>
 </div>
 </article>
@@ -589,7 +595,7 @@ class Component extends DCLogic {
     super(props);
     this.state = {
       a: {},
-      f: { name: '', idNum: '', address: '', prefix: '', phoneNum: '', email: '', age: '', amount: '', otherGoal: '', notes: '' },
+      f: { name: '', idNum: '', address: '', prefix: '', phoneNum: '', email: '', age: '', marital: '', kids: '', amount: '', otherGoal: '', notes: '' },
       goals: [], gp: {}, approve: '', approvedFor: -1, alt: -1, altReason: '', pdfStatus: '', useTyped: false, typedSig: '', consent: false, agree: false, tried: false, done: false, sig: '', signedAt: '', signedDate: ''
     };
   }
@@ -889,7 +895,7 @@ class Component extends DCLogic {
     var waText = 'שלום יוגב, חתמתי על הסכם הייעוץ באתר. ההסכם החתום מצורף כקובץ PDF. שם: ' + f.name.trim() + '. רמת סיכון שאושרה: ' + finalLevel.name + '. אשמח לתאם פגישת ייעוץ.';
     var mailBody = ['שלום יוגב,', '', 'חתמתי על הסכם הייעוץ באתר. ההסכם החתום מצורף כקובץ PDF.', '',
       'שם הלקוח או התאגיד: ' + f.name.trim(), 'מספר זהות או ח״פ: ' + f.idNum, 'כתובת: ' + f.address.trim(), 'טלפון: ' + phoneShown,
-      'אימייל: ' + f.email.trim(), 'גיל: ' + f.age, 'סכום מיועד להשקעה: ' + amountShown,
+      'אימייל: ' + f.email.trim(), 'גיל: ' + f.age, 'מצב משפחתי: ' + (f.marital || 'לא צוין'), 'מספר ילדים: ' + (f.kids || 'לא צוין'), 'סכום מיועד להשקעה: ' + amountShown,
       'רמת סיכון שנגזרה מהתשובות: ' + level.name, 'רמת סיכון שאושרה על ידי הלקוח: ' + finalLevel.name + (altValid ? ' (נימוק: ' + st.altReason.trim() + ')' : ''), 'נחתם: ' + st.signedAt, '', 'תשובות לשאלון:'].concat(answers.map(function (r) { return r.title + ' ' + r.answer; })).concat(f.notes.trim() ? ['', 'הערות: ' + f.notes.trim()] : []).join('\n');
 
     self._phone = phoneShown;
@@ -902,7 +908,7 @@ class Component extends DCLogic {
       f: f,
       set: {
         name: setF('name'), idNum: setF('idNum', true), address: setF('address'), prefix: setF('prefix'), phoneNum: setF('phoneNum', true),
-        email: setF('email'), age: setF('age', true), amount: setF('amount', true), notes: setF('notes')
+        email: setF('email'), age: setF('age', true), marital: setF('marital'), kids: setF('kids', true), amount: setF('amount', true), notes: setF('notes')
       },
       phoneShown: phoneShown,
       amountShown: amountShown,
