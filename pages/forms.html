@@ -694,7 +694,7 @@ class Component extends DCLogic {
     if (self._pdfBusy) return;
     self._pdfBusy = true;
     var fileName = 'Yogev-David-advisory-agreement-' + new Date().toISOString().slice(0, 10) + '.pdf';
-    self.setState({ pdfStatus: 'מכין ושולח את ההסכם החתום…', pdfFailed: false, needManual: false });
+    self.setState({ pdfStatus: 'מכין את ההסכם החתום…', pdfFailed: false, needManual: false });
     try {
       var blob = await self.makePdf();
       if (!blob) { self.setState({ pdfStatus: 'לא הצלחתי ליצור את הקובץ. לחץ על ניסיון נוסף.', pdfFailed: true }); return; }
@@ -707,22 +707,6 @@ class Component extends DCLogic {
       self._pdfFile = file;
       var canShare = false;
       try { canShare = !!(file && navigator.canShare && navigator.canShare({ files: [file] })); } catch (err) { canShare = false; }
-      var sent = false;
-      try {
-        var fd = new FormData();
-        fd.append('pdf', blob, 'agreement.pdf');
-        fd.append('name', self.state.f.name.trim());
-        fd.append('email', self.state.f.email.trim());
-        fd.append('phone', self._phone || '');
-        fd.append('level', self._levelName || '');
-        fd.append('website', '');
-        var res = await fetch('/api/agreement', { method: 'POST', body: fd });
-        sent = res.ok;
-      } catch (err) { sent = false; }
-      if (sent) {
-        self.setState({ sentOk: true, pdfReady: true, needManual: false, pdfStatus: 'ההסכם החתום נשלח אליי. אחזור אליך בהקדם.' });
-        return;
-      }
       self.setState({ pdfReady: true, needManual: true, canShare: canShare, pdfStatus: 'ההסכם מוכן. נשאר צעד אחד: לשלוח לי אותו.' });
     } catch (err) {
       self.setState({ pdfStatus: 'משהו השתבש. לחץ על ניסיון נוסף.', pdfFailed: true });
