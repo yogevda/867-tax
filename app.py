@@ -1,5 +1,9 @@
 """האתר של יוגב דוד: מגיש את העמודים, ושולח למייל הסכמים חתומים ושאלות מהאתר."""
 import os
+import json
+import base64
+import urllib.request
+import urllib.error
 import ssl
 import time
 import smtplib
@@ -21,6 +25,8 @@ SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 MAX_PDF_BYTES = 10 * 1024 * 1024
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "Yogev David Site <onboarding@resend.dev>")
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
@@ -86,8 +92,40 @@ def clean(value: str, limit: int = 300) -> str:
     return " ".join((value or "").split())[:limit]
 
 
+def send_via_resend(subject: str, body: str, reply_to: str, attachment: bytes, filename: str):
+    """שליחה דרך Resend (HTTPS). עובד גם בתוכנית החינמית של Render, שחוסמת SMTP."""
+    payload = {
+        "from": RESEND_FROM,
+        "to": [MAIL_TO],
+        "subject": subject,
+        "text": body,
+    }
+    if reply_to and "@" in reply_to and "\n" not in reply_to:
+        payload["reply_to"] = reply_to
+    if attachment:
+        payload["attachments"] = [{"filename": filename, "content": base64.b64encode(attachment).decode("ascii")}]
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json", "User-Agent": "yogev-site/1.0"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            if resp.status >= 300:
+                raise HTTPException(status_code=502, detail="mail failed")
+    except urllib.error.HTTPError as e:
+        print("Resend error:", e.code, e.read()[:500], flush=True)
+        raise HTTPException(status_code=502, detail="mail failed")
+    except urllib.error.URLError as e:
+        print("Resend unreachable:", e, flush=True)
+        raise HTTPException(status_code=502, detail="mail failed")
+
+
 def send_mail(subject: str, body: str, reply_to: str = "", attachment: bytes = None, filename: str = ""):
     dump_dir = os.environ.get("MAIL_DUMP_DIR")  # לבדיקות מקומיות בלבד: שומר את המייל לקובץ במקום לשלוח
+    if RESEND_API_KEY and not dump_dir:
+        return send_via_resend(subject, body, reply_to, attachment, filename)
     if not dump_dir and not (SMTP_USER and SMTP_PASSWORD):
         raise HTTPException(status_code=503, detail="mail not configured")
     msg = EmailMessage()
@@ -104,7 +142,7 @@ def send_mail(subject: str, body: str, reply_to: str = "", attachment: bytes = N
         (Path(dump_dir) / f"{int(time.time() * 1000)}.eml").write_bytes(bytes(msg))
         return
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context, timeout=30) as server:
+    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context, timeout=12) as server:
         server.login(SMTP_USER, SMTP_PASSWORD)
         server.send_message(msg)
 
