@@ -1,9 +1,17 @@
 services:
   - type: web
-    name: 867-tax
+    name: yogev-david-site
     runtime: python
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
     envVars:
-      - key: ANTHROPIC_API_KEY
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: MAIL_TO
+        value: yogevda@gmail.com
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
         sync: false

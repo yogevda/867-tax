@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שאלה ליוגב · יוגב דוד</title>
+<meta name="description" content="שאלה ליוגב דוד, יועץ השקעות.">
+<link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+<style>
+body{margin:0;background:#EAF2FA}
+a{color:#0F1F33}a:hover{color:#3F4A55}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #1F3A5F;outline-offset:3px}
+input,textarea{font-family:Arial, sans-serif}
+@media (max-width: 640px){header{padding:16px 20px!important}main{padding-top:20px!important;padding-left:20px!important;padding-right:20px!important}h1{font-size:34px!important}}
+html{-webkit-text-size-adjust:100%}
+</style>
+<script src="/static/morphdom-umd.min.js"></script>
+<script src="/static/dc-lite.js"></script>
+</head>
+<body>
+<div id="app">
+<div dir="rtl" style="width: 100%; min-height: 100vh; font-family: Arial, sans-serif; color: #0F1F33; background: #EAF2FA; font-size: 18px; line-height: 1.65">
+
+<header style="max-width: 1080px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="/" style="font-size: 24px; font-weight: 700; text-decoration: none">יוגב דוד</a>
+<a href="/" style="font-size: 16px">חזרה לדף הבית</a>
+</header>
+
+<main style="max-width: 640px; margin: 0 auto; padding: 56px 24px 112px">
+<h1 style="margin: 0 0 12px; font-size: 44px; font-weight: 400; line-height: 1.15">יש לכם שאלה?</h1>
+<p style="margin: 0 0 40px; font-size: 19px; color: #3F4A55">כתבו לי, ואחזור אליכם.</p>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-name" style="font-size: 15px; font-weight: 700">שם</label><input id="a-name" type="text" autocomplete="name" value="" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-contact" style="font-size: 15px; font-weight: 700">טלפון או מייל לחזרה</label><input id="a-contact" type="text" value="" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-q" style="font-size: 15px; font-weight: 700">השאלה</label><textarea id="a-q" rows="5" value="" style="padding: 12px 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33; resize: vertical"></textarea></div>
+</div>
+
+
+
+<div style="margin-top: 28px">
+
+<button type="button" style="min-height: 52px; padding: 0 36px; border: 0; border-radius: 999px; background: #1F3A5F; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; cursor: pointer">שליחה</button>
+
+<p aria-live="polite" style="margin: 16px 0 0; font-size: 16px; font-weight: 700; color: #1F3A5F"></p>
+
+</div>
+</main>
+<footer style="border-top: 1px solid #CFDDEB">
+<div style="max-width: 1080px; margin: 0 auto; padding: 24px; font-size: 14px; color: #3F4A55">© 2026 יוגב דוד · <a href="/#privacy" style="color: #3F4A55">מדיניות פרטיות</a> · <a href="/#accessibility" style="color: #3F4A55">הצהרת נגישות</a></div>
+</footer>
+</div>
+</div>
+<template id="tpl">
+<div dir="rtl" style="width: 100%; min-height: 100vh; font-family: Arial, sans-serif; color: #0F1F33; background: #EAF2FA; font-size: 18px; line-height: 1.65">
+
+<header style="max-width: 1080px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="/" style="font-size: 24px; font-weight: 700; text-decoration: none">יוגב דוד</a>
+<a href="/" style="font-size: 16px">חזרה לדף הבית</a>
+</header>
+
+<main style="max-width: 640px; margin: 0 auto; padding: 56px 24px 112px">
+<h1 style="margin: 0 0 12px; font-size: 44px; font-weight: 400; line-height: 1.15">יש לכם שאלה?</h1>
+<p style="margin: 0 0 40px; font-size: 19px; color: #3F4A55">כתבו לי, ואחזור אליכם.</p>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-name" style="font-size: 15px; font-weight: 700">שם</label><input id="a-name" type="text" autocomplete="name" value="{{ name }}" onChange="{{ setName }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-contact" style="font-size: 15px; font-weight: 700">טלפון או מייל לחזרה</label><input id="a-contact" type="text" value="{{ contact }}" onChange="{{ setContact }}" style="min-height: 48px; padding: 0 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="a-q" style="font-size: 15px; font-weight: 700">השאלה</label><textarea id="a-q" rows="5" value="{{ question }}" onChange="{{ setQuestion }}" style="padding: 12px 14px; border: 1px solid #9FB3C8; border-radius: 10px; background: #FFFFFF; font-size: 17px; color: #0F1F33; resize: vertical"></textarea></div>
+</div>
+
+<sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
+<p role="alert" style="margin: 20px 0 0; padding: 14px 18px; border-radius: 10px; background: #FBE9E7; color: #8A1C0C; font-size: 16px">כדי לשלוח, מלאו שם, דרך לחזור אליכם ואת השאלה.</p>
+</sc-if>
+
+<div style="margin-top: 28px">
+<sc-if value="{{ notSentYet }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ send }}" style="min-height: 52px; padding: 0 36px; border: 0; border-radius: 999px; background: #1F3A5F; color: #FFFFFF; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; cursor: pointer">שליחה</button>
+</sc-if>
+<p aria-live="polite" style="margin: 16px 0 0; font-size: 16px; font-weight: 700; color: #1F3A5F">{{ status }}</p>
+<sc-if value="{{ showMail }}" hint-placeholder-val="{{ false }}">
+<a href="{{ mailLink }}" style="display: inline-flex; align-items: center; min-height: 48px; margin-top: 8px; font-weight: 700">שליחה במייל במקום ←</a>
+</sc-if>
+</div>
+</main>
+<footer style="border-top: 1px solid #CFDDEB">
+<div style="max-width: 1080px; margin: 0 auto; padding: 24px; font-size: 14px; color: #3F4A55">© 2026 יוגב דוד · <a href="/#privacy" style="color: #3F4A55">מדיניות פרטיות</a> · <a href="/#accessibility" style="color: #3F4A55">הצהרת נגישות</a></div>
+</footer>
+</div>
+</template>
+<script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { name: '', contact: '', question: '', tried: false, sent: false, status: '', showMail: false, busy: false };
+  }
+  renderVals() {
+    var self = this;
+    var st = this.state;
+    var ready = !!(st.name.trim() && st.contact.trim() && st.question.trim());
+    var body = 'שם: ' + st.name.trim() + '\nלחזור אליי: ' + st.contact.trim() + '\n\n' + st.question.trim();
+    return {
+      name: st.name, contact: st.contact, question: st.question,
+      setName: function (e) { self.setState({ name: e.target.value }); },
+      setContact: function (e) { self.setState({ contact: e.target.value }); },
+      setQuestion: function (e) { self.setState({ question: e.target.value }); },
+      ready: ready,
+      notReady: !ready,
+      showError: st.tried && !ready,
+      tryIt: function () { self.setState({ tried: true }); },
+      notSentYet: !st.sent,
+      status: st.status,
+      showMail: st.showMail,
+      send: function () {
+        if (!ready) { self.setState({ tried: true }); return; }
+        if (self.state.busy) return;
+        self.setState({ busy: true, status: 'שולח…', showMail: false });
+        fetch('/api/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: st.name.trim(), contact: st.contact.trim(), question: st.question.trim(), website: '' }) })
+          .then(function (r) { if (!r.ok) throw new Error('bad'); self.setState({ sent: true, busy: false, status: 'תודה! השאלה נשלחה, ואחזור אליך בהקדם.' }); })
+          .catch(function () { self.setState({ busy: false, status: 'לא הצלחתי לשלוח מהאתר. אפשר לשלוח במייל:', showMail: true }); });
+      },
+      mailLink: 'mailto:yogevda@gmail.com?subject=' + encodeURIComponent('שאלה מהאתר') + '&body=' + encodeURIComponent(body)
+    };
+  }
+}
+DC.mount(document.getElementById('tpl'), Component, document.getElementById('app'), {});
+</script>
+</body>
+</html>
