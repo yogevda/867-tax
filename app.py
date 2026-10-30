@@ -62,6 +62,8 @@ try:
 except Exception:  # pragma: no cover
     TZ = None
 STATS_KEY = os.environ.get("STATS_KEY", "")
+# רק טביעת אצבע של הסיסמה נשמרת בקוד, כך שאי אפשר לגלות אותה מהקוד עצמו
+STATS_KEY_HASH = os.environ.get("STATS_KEY_HASH", "6641fdb4245b4a060f5085b9584e27dc9f54dd9e64d0e9828502b5b2bbdcaaf0")
 PAGE_NAMES = {"/": "דף הבית", "/forms": "טפסים", "/content": "יצירת תוכן", "/ask": "שאלות", "/license": "רישיון"}
 BOT_WORDS = ("bot", "crawl", "spider", "slurp", "preview", "facebookexternalhit", "whatsapp", "telegram", "headless",
              "python", "curl", "wget", "go-http", "render", "monitor", "uptime", "scan", "lighthouse")
@@ -111,7 +113,9 @@ def page_handler(name, path):
 
 @app.get("/stats", include_in_schema=False)
 async def stats(key: str = ""):
-    if not STATS_KEY or not secrets.compare_digest(key, STATS_KEY):
+    ok = bool(STATS_KEY) and secrets.compare_digest(key, STATS_KEY)
+    ok = ok or (bool(key) and secrets.compare_digest(hashlib.sha256(key.encode()).hexdigest(), STATS_KEY_HASH))
+    if not ok:
         return RedirectResponse("/", status_code=302)
     e = htmlmod.escape
     since = STATS["since"].strftime("%d.%m.%Y %H:%M") if STATS["since"] else "עדיין אין כניסות"
