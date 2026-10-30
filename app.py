@@ -7,13 +7,17 @@ import urllib.error
 import ssl
 import time
 import smtplib
+import hashlib
+import html as htmlmod
+import secrets
+from datetime import datetime
 from collections import defaultdict, deque
 from email.message import EmailMessage
 from email.utils import formataddr
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -51,14 +55,87 @@ ROUTES = {
 }
 
 
-def page_handler(name):
-    async def handler():
+# ---------- מונה כניסות פשוט, בלי צד שלישי ----------
+try:
+    from zoneinfo import ZoneInfo
+    TZ = ZoneInfo("Asia/Jerusalem")
+except Exception:  # pragma: no cover
+    TZ = None
+STATS_KEY = os.environ.get("STATS_KEY", "")
+PAGE_NAMES = {"/": "דף הבית", "/forms": "טפסים", "/content": "יצירת תוכן", "/ask": "שאלות", "/license": "רישיון"}
+BOT_WORDS = ("bot", "crawl", "spider", "slurp", "preview", "facebookexternalhit", "whatsapp", "telegram", "headless",
+             "python", "curl", "wget", "go-http", "render", "monitor", "uptime", "scan", "lighthouse")
+STATS = {"since": None, "total": 0, "pages": defaultdict(int), "days": defaultdict(int), "visitors": set(), "recent": deque(maxlen=200)}
+_SALT = secrets.token_hex(8)
+
+
+def now_il():
+    return datetime.now(TZ) if TZ else datetime.utcnow()
+
+
+def record_visit(request: Request, path: str):
+    ua = request.headers.get("user-agent", "")
+    if not ua or any(w in ua.lower() for w in BOT_WORDS):
+        return
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    who = hashlib.sha256((_SALT + ip + ua).encode()).hexdigest()[:10]  # מזהה אנונימי, בלי לשמור כתובת IP
+    low = ua.lower()
+    device = "טלפון" if ("mobile" in low or "android" in low or "iphone" in low) else ("טאבלט" if "ipad" in low else "מחשב")
+    ref = request.headers.get("referer", "")
+    src = ""
+    if ref:
+        host = ref.split("/")[2] if "//" in ref else ref
+        if "867.co.il" not in host and "onrender.com" not in host:
+            src = host.replace("www.", "")
+    t = now_il()
+    if STATS["since"] is None:
+        STATS["since"] = t
+    STATS["total"] += 1
+    STATS["pages"][path] += 1
+    STATS["days"][t.strftime("%d.%m")] += 1
+    STATS["visitors"].add(who)
+    STATS["recent"].appendleft((t.strftime("%d.%m %H:%M"), PAGE_NAMES.get(path, path), device, src or "ישירות", who[:4]))
+    print(f"VISIT {t:%d.%m %H:%M} {path} {device} {src or '-'}", flush=True)
+
+
+def page_handler(name, path):
+    async def handler(request: Request):
+        if request.method == "GET":
+            try:
+                record_visit(request, path)
+            except Exception as e:  # המונה לעולם לא מפיל את האתר
+                print("stats error:", e, flush=True)
         return FileResponse(PAGES / name, media_type="text/html; charset=utf-8")
     return handler
 
 
+@app.get("/stats", include_in_schema=False)
+async def stats(key: str = ""):
+    if not STATS_KEY or not secrets.compare_digest(key, STATS_KEY):
+        return RedirectResponse("/", status_code=302)
+    e = htmlmod.escape
+    since = STATS["since"].strftime("%d.%m.%Y %H:%M") if STATS["since"] else "עדיין אין כניסות"
+    pages = "".join(f"<tr><td>{e(PAGE_NAMES.get(p, p))}</td><td>{n}</td></tr>" for p, n in sorted(STATS["pages"].items(), key=lambda x: -x[1]))
+    days = "".join(f"<tr><td>{e(d)}</td><td>{n}</td></tr>" for d, n in list(STATS["days"].items())[::-1])
+    recent = "".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td><td>{e(c)}</td><td>{e(d)}</td><td>{e(v)}</td></tr>" for a, b, c, d, v in STATS["recent"])
+    body = f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>כניסות לאתר</title><style>
+body{{font-family:Arial,sans-serif;background:#EEF3F8;color:#0F1F33;margin:0;padding:20px 16px;max-width:760px;margin:auto}}
+h1{{font-size:24px;margin:0 0 4px}} .s{{color:#3F4A55;margin:0 0 18px}}
+.k{{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 20px}} .k div{{background:#fff;border:1px solid #CFDDEB;border-radius:12px;padding:12px 18px}} .k b{{display:block;font-size:28px}}
+h2{{font-size:17px;margin:20px 0 8px}} table{{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:15px}}
+td{{padding:8px 10px;border-bottom:1px solid #E3EBF3}}</style></head><body>
+<h1>כניסות לאתר</h1><p class="s">נספר מאז {e(since)}. רובוטים לא נספרים.</p>
+<div class="k"><div><b>{STATS['total']}</b>צפיות בעמודים</div><div><b>{len(STATS['visitors'])}</b>מבקרים שונים</div></div>
+<h2>לפי עמוד</h2><table>{pages}</table>
+<h2>לפי יום</h2><table>{days}</table>
+<h2>כניסות אחרונות</h2><table><tr><td><b>מתי</b></td><td><b>עמוד</b></td><td><b>מכשיר</b></td><td><b>הגיע מ</b></td><td><b>מבקר</b></td></tr>{recent}</table>
+</body></html>"""
+    return HTMLResponse(body, headers={"Cache-Control": "no-store"})
+
+
 for path, name in ROUTES.items():
-    app.add_api_route(path, page_handler(name), methods=["GET", "HEAD"], include_in_schema=False)
+    app.add_api_route(path, page_handler(name, path), methods=["GET", "HEAD"], include_in_schema=False)
 
 
 @app.get("/healthz", include_in_schema=False)
