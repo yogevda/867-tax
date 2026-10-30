@@ -8,6 +8,8 @@ import ssl
 import time
 import smtplib
 import hashlib
+import hmac
+import asyncio
 import html as htmlmod
 import secrets
 from datetime import datetime
@@ -111,6 +113,84 @@ def page_handler(name, path):
                 print("stats error:", e, flush=True)
         return FileResponse(PAGES / name, media_type="text/html; charset=utf-8")
     return handler
+
+
+# ---------- שמירת הספירה בלי צד שלישי ----------
+# 1. השרת "מעיר" את עצמו כל 10 דקות, כדי שלא יירדם ולא יאבד את המספרים.
+# 2. כשהאתר מתעדכן, השרת הישן מעביר את המספרים שלו לשרת החדש לפני שהוא נסגר.
+SELF_URL = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
+INSTANCE = secrets.token_hex(6)
+_MERGE_SECRET = (os.environ.get("SMTP_PASSWORD") or os.environ.get("ANTHROPIC_API_KEY") or STATS_KEY_HASH).encode()
+
+
+def _sign(data: bytes) -> str:
+    return hmac.new(_MERGE_SECRET, data, hashlib.sha256).hexdigest()
+
+
+def _http(url, data=None, headers=None, timeout=15):
+    req = urllib.request.Request(url, data=data, headers=dict({"User-Agent": "render-keepalive"}, **(headers or {})), method="POST" if data else "GET")
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.status
+
+
+async def _keep_awake():
+    while True:
+        await asyncio.sleep(600)
+        try:
+            await asyncio.to_thread(_http, SELF_URL + "/healthz")
+        except Exception as e:
+            print("keepalive failed:", e, flush=True)
+
+
+@app.on_event("startup")
+async def _startup():
+    if SELF_URL:
+        asyncio.create_task(_keep_awake())
+
+
+@app.on_event("shutdown")
+async def _shutdown():
+    if not SELF_URL or STATS["total"] == 0:
+        return
+    payload = json.dumps({
+        "from": INSTANCE,
+        "since": STATS["since"].isoformat() if STATS["since"] else None,
+        "total": STATS["total"], "pages": dict(STATS["pages"]), "days": dict(STATS["days"]),
+        "visitors": list(STATS["visitors"]), "recent": list(STATS["recent"]),
+    }).encode()
+    for attempt in range(8):  # מנסה עד שהבקשה מגיעה לשרת החדש
+        try:
+            await asyncio.to_thread(_http, SELF_URL + "/api/stats-merge", payload, {"Content-Type": "application/json", "X-Sig": _sign(payload)})
+            print("stats handed over", flush=True)
+            return
+        except Exception as e:
+            print("handover retry:", e, flush=True)
+            await asyncio.sleep(3)
+
+
+@app.post("/api/stats-merge", include_in_schema=False)
+async def stats_merge(request: Request):
+    data = await request.body()
+    if not hmac.compare_digest(request.headers.get("x-sig", ""), _sign(data)):
+        raise HTTPException(status_code=403)
+    d = json.loads(data)
+    if d.get("from") == INSTANCE:
+        raise HTTPException(status_code=409)  # הגיע לעצמו, צריך לנסות שוב
+    if d.get("since"):
+        old = datetime.fromisoformat(d["since"])
+        if STATS["since"] is None or old < STATS["since"]:
+            STATS["since"] = old
+    STATS["total"] += int(d.get("total", 0))
+    for k, v in d.get("pages", {}).items():
+        STATS["pages"][k] += int(v)
+    merged_days = defaultdict(int)
+    for k, v in list(d.get("days", {}).items()) + list(STATS["days"].items()):
+        merged_days[k] += int(v)
+    STATS["days"] = merged_days
+    STATS["visitors"].update(d.get("visitors", []))
+    recent = list(STATS["recent"]) + [tuple(x) for x in d.get("recent", [])]
+    STATS["recent"] = deque(recent, maxlen=200)
+    return {"ok": True}
 
 
 @app.get("/stats", include_in_schema=False)
