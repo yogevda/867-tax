@@ -76,6 +76,8 @@ def now_il():
 
 
 def record_visit(request: Request, path: str):
+    if request.cookies.get("yd_owner") == "1":  # כניסות של יוגב עצמו לא נספרות
+        return
     ua = request.headers.get("user-agent", "")
     if not ua or any(w in ua.lower() for w in BOT_WORDS):
         return
@@ -129,13 +131,15 @@ h1{{font-size:24px;margin:0 0 4px}} .s{{color:#3F4A55;margin:0 0 18px}}
 .k{{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 20px}} .k div{{background:#fff;border:1px solid #CFDDEB;border-radius:12px;padding:12px 18px}} .k b{{display:block;font-size:28px}}
 h2{{font-size:17px;margin:20px 0 8px}} table{{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:15px}}
 td{{padding:8px 10px;border-bottom:1px solid #E3EBF3}}</style></head><body>
-<h1>כניסות לאתר</h1><p class="s">נספר מאז {e(since)}. רובוטים לא נספרים.</p>
+<h1>כניסות לאתר</h1><p class="s">נספר מאז {e(since)}. רובוטים לא נספרים, וגם הכניסות שלך מהמכשיר הזה לא נספרות.</p>
 <div class="k"><div><b>{STATS['total']}</b>צפיות בעמודים</div><div><b>{len(STATS['visitors'])}</b>מבקרים שונים</div></div>
 <h2>לפי עמוד</h2><table>{pages}</table>
 <h2>לפי יום</h2><table>{days}</table>
 <h2>כניסות אחרונות</h2><table><tr><td><b>מתי</b></td><td><b>עמוד</b></td><td><b>מכשיר</b></td><td><b>הגיע מ</b></td><td><b>מבקר</b></td></tr>{recent}</table>
 </body></html>"""
-    return HTMLResponse(body, headers={"Cache-Control": "no-store"})
+    resp = HTMLResponse(body, headers={"Cache-Control": "no-store"})
+    resp.set_cookie("yd_owner", "1", max_age=60 * 60 * 24 * 365 * 5, httponly=True, samesite="lax", secure=True)
+    return resp
 
 
 for path, name in ROUTES.items():
